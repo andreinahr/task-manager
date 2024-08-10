@@ -79,38 +79,33 @@ function listInProgressTasks() {
 function main() {
     const [,, command, ...args] = process.argv;
 
-    try {
-        switch (command) {
-            case 'add':
-                if (args.length === 0) throw new Error('Title is required');
-                addTask(args.join(' '));
-                break;
-            case 'update':
-                if (args.length !== 2) throw new Error('ID and status are required');
-                updateTask(args[0], args[1]);
-                break;
-            case 'delete':
-                if (args.length !== 1) throw new Error('ID is required');
-                deleteTask(args[0]);
-                break;
-            case 'list':
-                listTasks();
-                break;
-            case 'list-done':
-                listDoneTasks();
-                break;
-            case 'list-not-done':
-                listNotDoneTasks();
-                break;
-            case 'list-in-progress':
-                listInProgressTasks();
-                break;
-            default:
-                console.error('Unknown command');
-                break;
+    const handlers = {
+        add: () => {
+            if (args.length === 0) throw new Error('Title is required');
+            addTask(args.join(' '));
+        },
+        update: () => {
+            if (args.length !== 2) throw new Error('ID and status are required');
+            updateTask(args[0], args[1]);
+        },
+        delete: () => {
+            if (args.length !== 1) throw new Error('ID is required');
+            deleteTask(args[0]);
+        },
+        list: listTasks,
+        'list-done': listDoneTasks,
+        'list-not-done': listNotDoneTasks,
+        'list-in-progress': listInProgressTasks,
+    };
+    
+    if (handlers[command]) {
+        try {
+            handlers[command]();
+        } catch (error) {
+            console.error('Error:', error.message);
         }
-    } catch (error) {
-        console.error('Error:', error.message);
+    } else {
+        console.error('Unknown command');
     }
 }
 
